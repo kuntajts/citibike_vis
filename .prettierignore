@@ -1,0 +1,9 @@
+node_modules
+dist/assets
+scripts/tripdata
+public
+build
+data_source
+*.min.js
+package-lock.json
+.DS_Store

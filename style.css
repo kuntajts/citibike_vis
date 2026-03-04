@@ -1,0 +1,587 @@
+:root {
+  --primary-color: #3b82f6;
+  --bg-overlay: rgba(15, 23, 42, 0.8);
+  /* Dark Slate */
+  --text-color: #f8fafc;
+  --font-family: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  background-color: #0f172a;
+  color: var(--text-color);
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  resize: both;
+  min-width: 300px;
+  min-height: 200px;
+  max-width: 90vw;
+}
+
+header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
+  padding-right: 10px;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+header p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.controls {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.time-display {
+  font-family: monospace;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--primary-color);
+}
+
+#play-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+#play-btn:hover {
+  background: #2563eb;
+}
+
+.speed-control {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.chart-container {
+  height: 150px;
+  min-height: 150px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Scrollbar aesthetic */
+#overlay::-webkit-scrollbar {
+  width: 6px;
+}
+
+#overlay::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#overlay::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* Desktop Content Wrapper */
+.desktop-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Trip List Styles */
+.trip-list-container {
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.trip-list-container h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.trip-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 5px;
+  flex: 1;
+}
+
+/* Scrollbar for trip list */
+.trip-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.trip-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.trip-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.trip-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trip-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(2px);
+}
+
+.trip-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  /* Primary color */
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.trip-item.completed {
+  opacity: 0.6;
+}
+
+.trip-time {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--primary-color);
+}
+
+.trip-item.active .trip-time {
+  color: #fff;
+}
+
+.trip-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trip-route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+  font-size: 0.8rem;
+}
+
+.station {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+
+.trip-duration {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.trip-list-empty {
+  margin-top: 20px;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+/* Leaflet Tooltip Customization */
+.leaflet-tooltip {
+  background-color: var(--bg-overlay) !important;
+  color: var(--text-color) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+  font-family: var(--font-family) !important;
+  font-size: 0.85rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+  padding: 6px 10px !important;
+  backdrop-filter: blur(4px);
+}
+
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+  display: none; /* Hide default arrow for cleaner look */
+}
+
+/* Mobile Optimizations */
+.mobile-toggle-btn {
+  display: none;
+}
+
+.collapsible-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  transition:
+    max-height 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.collapsible-content.stats-section {
+  flex: none;
+  min-height: min-content;
+}
+
+@media (max-width: 768px) {
+  #overlay {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    padding: 10px;
+    min-height: 0;
+    max-height: calc(100vh - 20px);
+  }
+
+  .mobile-toggle-btn {
+    display: block;
+    width: auto;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    margin-top: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .mobile-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Hide the collapsible content initially on mobile */
+  .collapsible-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Fix for stats-section which has min-height: min-content from base styles */
+  .collapsible-content.stats-section {
+    min-height: 0;
+  }
+
+  /* Show when expanded */
+  .collapsible-content.expanded {
+    max-height: 50vh; /* Allow it to grow */
+    opacity: 1;
+    overflow-y: auto;
+    margin-top: 5px;
+  }
+
+  .collapsible-content.stats-section.expanded {
+    min-height: min-content;
+  }
+
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none !important;
+  }
+
+  header {
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  h1 {
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+  }
+
+  header p {
+    font-size: 0.8rem;
+  }
+
+  .stats-container {
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .stat-box {
+    padding: 5px;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-size: 0.9rem;
+  }
+
+  .controls {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .time-display {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+
+  .progress-bar-container {
+    margin-bottom: 10px;
+  }
+
+  #play-btn {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Info Dialog Styles */
+.info-btn-floating {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(10px);
+  color: var(--text-color);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.info-btn-floating:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.info-dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.info-dialog-content {
+  background: #1e293b;
+  color: var(--text-color);
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  text-align: center;
+}
+
+.info-dialog-content .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.info-dialog-content .close-btn:hover {
+  color: #fff;
+}
+
+.info-dialog-content h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.info-dialog-content p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.info-dialog-content a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.info-dialog-content a:hover {
+  text-decoration: underline;
+}
+
+.tech-stack {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tech-stack h3 {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+.tech-stack ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 0;
+}
+
+.tech-stack li {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
