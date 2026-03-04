@@ -1,5 +1,6 @@
 {
   "name": "citibike_vis",
+  "homepage": "https://kuntajts.github.io/citibike_vis",
   "version": "1.0.0",
   "description": "A React-based visualization tool for Citi Bike trips, featuring an interactive map and trip statistics.",
   "main": "data.js",

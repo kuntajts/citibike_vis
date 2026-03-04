@@ -36,10 +36,7 @@ const InfoDialog = () => {
         </p>
         <p>
           <strong>Data source:</strong>{' '}
-          <a
-            href="https://citibikenyc.com/system-data"
-            target="_blank"
-          >
+          <a href="https://citibikenyc.com/system-data" target="_blank">
             Citi Bike System Data
           </a>
         </p>

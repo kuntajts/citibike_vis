@@ -12,7 +12,9 @@ const useDailyData = () => {
         const dd = String(today.getDate()).padStart(2, '0');
         const dateStr = `${mm}-${dd}`;
 
-        const response = await fetch(`/data/${dateStr}.json`);
+        const response = await fetch(
+          `${import.meta.env.BASE_URL}/data/${dateStr}.json`
+        );
         if (!response.ok) {
           console.error('No data found for today');
           setIsLoading(false);
