@@ -61,6 +61,17 @@ npm run build
 
 This runs the data sync step beforehand, then builds the application into the `dist/` folder.
 
+### Deployment
+
+This project is configured to be automatically deployed to GitHub Pages securely via GitHub Actions.
+
+1. Go to your repository **Settings** on GitHub.
+2. Select **Pages** from the sidebar.
+3. Under **Build and deployment**, select **GitHub Actions** as the source.
+4. Any push to the `main` branch will now trigger the `.github/workflows/deploy.yml` action to securely build and deploy your application.
+
+No further configuration (such as `gh-pages` branch) is needed.
+
 ## Data Processing Workflow
 
 If you want to update the visualization with fresh data from a new `citibike-tripdata.csv` file downloaded to the `scripts/` folder:
