@@ -74,6 +74,7 @@ const useStationMarkers = ({
             fillOpacity: 1,
             weight: 2,
             pane: 'stationsPane',
+            interactive: false,
           }
         : {
             fillColor: '#fff',
@@ -82,26 +83,35 @@ const useStationMarkers = ({
             fillOpacity: 0.2,
             weight: 1,
             pane: 'stationsPane',
+            interactive: false,
           };
 
-      const marker = L.circleMarker([data.lat, data.lng], style)
-        .addTo(mapRef.current)
-        .bindTooltip(data.name);
+      const marker = L.circleMarker([data.lat, data.lng], style);
+
+      const hitbox = L.circleMarker([data.lat, data.lng], {
+        radius: 10,
+        color: 'transparent',
+        fillColor: 'transparent',
+        pane: 'stationsPane',
+      }).bindTooltip(data.name);
+
+      const layerGroup = L.layerGroup([marker, hitbox]).addTo(mapRef.current);
 
       if (isSelected) {
         if (marker.bringToFront) marker.bringToFront();
+        if (hitbox.bringToFront) hitbox.bringToFront();
         mapRef.current.panTo(marker.getLatLng());
       }
 
       // Allow clicking on any marker that is a valid origin in dailyData
       const originalId = stationId.startsWith('dest-') ? null : stationId;
       if (originalId && dailyData[originalId]) {
-        marker.on('click', () => {
+        hitbox.on('click', () => {
           setSelectedStationId(String(originalId));
         });
       }
 
-      stationMarkersRef.current[stationId] = marker;
+      stationMarkersRef.current[stationId] = layerGroup;
     });
   }, [dailyData, selectedStationId, trips, setSelectedStationId, mapRef]);
 };
