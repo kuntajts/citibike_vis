@@ -62,12 +62,12 @@ const Overlay = ({
           </div>
 
           <Controls
+            trips={trips}
             currentTime={currentTime}
             startTime={startTime}
             endTime={endTime}
             isPlaying={isPlaying}
             onPlayPause={onPlayPause}
-            onSeek={onSeek}
             playbackSpeed={playbackSpeed}
             onSpeedChange={onSpeedChange}
           />

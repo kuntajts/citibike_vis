@@ -1,4 +1,5 @@
 const Controls = ({
+  trips,
   currentTime,
   startTime,
   endTime,
@@ -21,11 +22,27 @@ const Controls = ({
           className="progress-bar"
           style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }}
         ></div>
+        {trips &&
+          trips.map((trip, idx) => {
+            if (startTime === endTime) return null;
+            const tripProgress =
+              (trip.startTimeTs - startTime) / (endTime - startTime);
+            if (tripProgress >= 0 && tripProgress <= 1) {
+              return (
+                <div
+                  key={idx}
+                  className="trip-start-line"
+                  style={{ left: `${tripProgress * 100}%` }}
+                ></div>
+              );
+            }
+            return null;
+          })}
       </div>
       <button id="play-btn" onClick={onPlayPause}>
         {isPlaying ? 'Pause' : 'Play'}
       </button>
-      <div className="speed-control desktop-only">
+      <div className="speed-control">
         <label>Speed: {playbackSpeed}x</label>
         <input
           type="range"

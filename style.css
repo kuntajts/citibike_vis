@@ -131,12 +131,25 @@ header p {
   border-radius: 3px;
   margin-bottom: 15px;
   overflow: hidden;
+  position: relative;
 }
 
 .progress-bar {
   height: 100%;
   width: 0%;
   background: var(--primary-color);
+  position: relative;
+  z-index: 1;
+}
+
+.trip-start-line {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 2;
+  transform: translateX(-50%);
 }
 
 #play-btn {
@@ -162,6 +175,20 @@ header p {
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
+}
+
+.speed-control label {
+  min-width: 90px;
+  white-space: nowrap;
+}
+
+.speed-control input {
+  flex: 1;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .chart-container {
@@ -461,6 +488,11 @@ header p {
   #play-btn {
     padding: 8px;
     font-size: 0.9rem;
+  }
+
+  /* Hide station tooltips on mobile */
+  .leaflet-tooltip {
+    display: none !important;
   }
 }
 
