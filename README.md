@@ -1,13 +1,15 @@
 # Citi Bike Visualization
 
+[**View the Live Visualization Here**](https://kuntajts.github.io/citibike_vis/)
+
 An interactive, React-based visualization tool for exploring and animating Citi Bike trip data over time. Features a dynamic map, time-based animation playback, route visualization, and real-time trip statistics.
 
 ## Features
 
-- **Interactive Map**: Built with React and Leaflet, displaying stations and dynamically rendering bike trip routes.
-- **Time-Based Animation**: Play, pause, adjust speed, and seek through daily trip data to see the flow of bikes across the city.
+- **Interactive Map**: Built with React and Leaflet, displaying stations and dynamically rendering bike trip routes. Select a station to view its individual real-time incoming and outgoing trip connections.
+- **Time-Based Animation**: Play, pause, adjust speed, and seek through daily trip data to see the flow of bikes across the city. The progress bar visualizes trip start times over the course of the day.
 - **Real-Time Statistics**: See active trips, completed trips, and total distance traveled updating dynamically alongside the animation.
-- **Responsive Design**: Designed to be fully usable on both desktop and mobile web views with a responsive UI overlay.
+- **Responsive Design**: Designed to be fully usable on both desktop and mobile web views with a responsive UI overlay, enlarged station hitboxes, and comfortable mobile touch interactions.
 - **Route Tracking**: Tracks ongoing trips and draws animated lines between the start and end stations.
 - **Data Syncing**: Built-in scripts manage daily data synchronization for dev and production builds.
 
@@ -68,7 +70,7 @@ This project is configured to be automatically deployed to GitHub Pages securely
 1. Go to your repository **Settings** on GitHub.
 2. Select **Pages** from the sidebar.
 3. Under **Build and deployment**, select **GitHub Actions** as the source.
-4. Any push to the `main` branch will now trigger the `.github/workflows/deploy.yml` action to securely build and deploy your application.
+4. The `.github/workflows/deploy.yml` action is configured to run automatically on a daily schedule via a cron job, or it can be triggered manually. It securely builds and deploys your application, keeping the visualization data fresh.
 
 No further configuration (such as `gh-pages` branch) is needed.
 
