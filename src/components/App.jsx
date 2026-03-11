@@ -39,20 +39,6 @@ const App = () => {
   } = useStationTrips(dailyData, selectedStationId, resetAnimation);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setPlaybackSpeed(400);
-      }
-    };
-    // Initial check
-    if (window.innerWidth <= 768) {
-      setPlaybackSpeed(400);
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [setPlaybackSpeed]);
-
-  useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.code === 'Space') {
         // Prevent toggling if the user is typing in an input

@@ -29,6 +29,7 @@ const useStationTrips = (dailyData, selectedStationId, resetAnimation) => {
 
   // Effect to handle station changes and data loading
   useEffect(() => {
+    const isFirstSelection = !currentStationRef.current;
     currentStationRef.current = selectedStationId;
 
     if (!dailyData || !selectedStationId || !dailyData[selectedStationId]) {
@@ -37,7 +38,25 @@ const useStationTrips = (dailyData, selectedStationId, resetAnimation) => {
       return;
     }
 
-    const stationTrips = [...dailyData[selectedStationId]];
+    const stationTripsOut = dailyData[selectedStationId]
+      ? dailyData[selectedStationId].map((trip) => ({
+          ...trip,
+          type: 'outgoing',
+        }))
+      : [];
+
+    let stationTripsIn = [];
+    Object.keys(dailyData).forEach((stationId) => {
+      const tripsFromStation = dailyData[stationId];
+      const incomingFromStation = tripsFromStation.filter(
+        (trip) => String(trip.endStationId) === String(selectedStationId)
+      );
+      stationTripsIn = stationTripsIn.concat(
+        incomingFromStation.map((trip) => ({ ...trip, type: 'incoming' }))
+      );
+    });
+
+    const stationTrips = [...stationTripsOut, ...stationTripsIn];
 
     if (stationTrips.length > 0) {
       // Process trip timestamps
@@ -57,8 +76,8 @@ const useStationTrips = (dailyData, selectedStationId, resetAnimation) => {
       const animationStart = Math.max(firstTripStart - PADDING_MS, dayStart);
       const animationEnd = lastTripStop + PADDING_MS;
 
-      // If trips is empty, aka it's the first station selected, start playing animation
-      !trips.length
+      // If it's the first station selected, start playing animation
+      isFirstSelection
         ? resetAnimation(animationStart, animationEnd, true)
         : resetAnimation(animationStart, animationEnd);
     } else {
@@ -92,9 +111,12 @@ const useStationTrips = (dailyData, selectedStationId, resetAnimation) => {
       if (!item) continue;
 
       const { key, coords } = item;
+      const parts = key.split('-');
+      const reverseKey = `${parts[1]}-${parts[0]}`;
 
-      // Skip if already completed or in-flight
-      if (routesDataRef.current[key]) continue;
+      // Skip if already completed or in-flight (check both directions)
+      if (routesDataRef.current[key] || routesDataRef.current[reverseKey])
+        continue;
 
       activeFetchesRef.current.add(key);
 
@@ -155,13 +177,18 @@ const useStationTrips = (dailyData, selectedStationId, resetAnimation) => {
         if (trip.start[0] === 0 || trip.end[0] === 0) continue;
 
         const pairKey = `${trip.startStationId}-${trip.endStationId}`;
+        const reverseKey = `${trip.endStationId}-${trip.startStationId}`;
 
-        if (!seenKeysInBatch.has(pairKey)) {
+        if (!seenKeysInBatch.has(pairKey) && !seenKeysInBatch.has(reverseKey)) {
           seenKeysInBatch.add(pairKey);
           uniqueUpcomingCount++;
 
-          const isAlreadyCached = !!routesDataRef.current[pairKey];
-          const isCurrentlyFetching = activeFetchesRef.current.has(pairKey);
+          const isAlreadyCached =
+            !!routesDataRef.current[pairKey] ||
+            !!routesDataRef.current[reverseKey];
+          const isCurrentlyFetching =
+            activeFetchesRef.current.has(pairKey) ||
+            activeFetchesRef.current.has(reverseKey);
 
           if (!isAlreadyCached && !isCurrentlyFetching) {
             highPriority.push({
@@ -182,12 +209,17 @@ const useStationTrips = (dailyData, selectedStationId, resetAnimation) => {
         if (trip.start[0] === 0 || trip.end[0] === 0) continue;
 
         const pairKey = `${trip.startStationId}-${trip.endStationId}`;
+        const reverseKey = `${trip.endStationId}-${trip.startStationId}`;
 
-        if (!seenKeysInBatch.has(pairKey)) {
+        if (!seenKeysInBatch.has(pairKey) && !seenKeysInBatch.has(reverseKey)) {
           seenKeysInBatch.add(pairKey);
 
-          const isAlreadyCached = !!routesDataRef.current[pairKey];
-          const isCurrentlyFetching = activeFetchesRef.current.has(pairKey);
+          const isAlreadyCached =
+            !!routesDataRef.current[pairKey] ||
+            !!routesDataRef.current[reverseKey];
+          const isCurrentlyFetching =
+            activeFetchesRef.current.has(pairKey) ||
+            activeFetchesRef.current.has(reverseKey);
 
           if (!isAlreadyCached && !isCurrentlyFetching) {
             lowPriority.unshift({

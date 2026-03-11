@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 
-const PATH_COLOR = '#3b82f6';
-const PATH_COLOR_OPACITY = 0.18;
-const MARKER_COLOR = '#ef4444';
+const OUTGOING_PATH_COLOR = '#3b82f6';
+const INCOMING_PATH_COLOR = '#10b981';
+const PATH_COLOR_OPACITY = 0.16;
+const OUTGOING_MARKER_COLOR = '#4facfe'; // Brighter blue
+const INCOMING_MARKER_COLOR = '#00f5d4'; // Brighter teal/green
 
 const useTripAnimation = ({
   mapRef,
@@ -30,22 +32,34 @@ const useTripAnimation = ({
   useEffect(() => {
     if (!mapRef.current || !trips.length) return;
 
-    let activeTripsCount = 0;
-    let completedTripsCount = 0;
-    let totalDist = 0;
+    let activeIncoming = 0;
+    let activeOutgoing = 0;
+    let completedIncoming = 0;
+    let completedOutgoing = 0;
+    let distIncoming = 0;
+    let distOutgoing = 0;
 
     trips.forEach((trip, index) => {
+      const isIncoming = trip.type === 'incoming';
       const hasStarted = currentTime >= trip.startTimeTs;
       const isComplete = currentTime >= trip.stopTimeTs;
 
       if (hasStarted) {
-        completedTripsCount++;
+        if (isIncoming) completedIncoming++;
+        else completedOutgoing++;
       }
 
       let routeCoords = null;
       if (routesData && trip.startStationId && trip.endStationId) {
         const pairKey = `${trip.startStationId}-${trip.endStationId}`;
-        routeCoords = routesData[pairKey] || null;
+        const reverseKey = `${trip.endStationId}-${trip.startStationId}`;
+
+        if (routesData[pairKey]) {
+          routeCoords = routesData[pairKey];
+        } else if (routesData[reverseKey]) {
+          // Optimization: Reuse reverse route by reversing coordinates
+          routeCoords = [...routesData[reverseKey]].reverse();
+        }
       }
       const hasRoute = !!routeCoords;
 
@@ -70,16 +84,22 @@ const useTripAnimation = ({
         }
       }
 
+      const pathColor = isIncoming ? INCOMING_PATH_COLOR : OUTGOING_PATH_COLOR;
+      const markerColor = isIncoming
+        ? INCOMING_MARKER_COLOR
+        : OUTGOING_MARKER_COLOR;
+
       if (hasStarted && isComplete) {
-        totalDist += trip.dist;
+        if (isIncoming) distIncoming += trip.dist;
+        else distOutgoing += trip.dist;
 
         let layers = tripLayersRef.current[index];
-        const drawnPath = hasRoute ? routeCoords : [trip.start, trip.end];
+        const routePath = hasRoute ? routeCoords : [trip.start, trip.end];
 
         if (!layers) {
           layers = {
-            polyline: L.polyline(drawnPath, {
-              color: PATH_COLOR,
+            polyline: L.polyline(routePath, {
+              color: pathColor,
               weight: 2,
               opacity: PATH_COLOR_OPACITY,
               pane: 'routesPane',
@@ -89,7 +109,7 @@ const useTripAnimation = ({
           };
           tripLayersRef.current[index] = layers;
         } else if (!layers.isCompleted || layers.hasRoute !== hasRoute) {
-          layers.polyline.setLatLngs(drawnPath);
+          layers.polyline.setLatLngs(routePath);
           layers.polyline.setStyle({ opacity: PATH_COLOR_OPACITY, weight: 2 });
           if (layers.marker) {
             layers.marker.remove();
@@ -99,14 +119,15 @@ const useTripAnimation = ({
           layers.hasRoute = hasRoute;
         }
       } else if (hasStarted && !isComplete) {
-        activeTripsCount++;
+        if (isIncoming) activeIncoming++;
+        else activeOutgoing++;
 
         const totalDuration = trip.stopTimeTs - trip.startTimeTs;
         const elapsed = currentTime - trip.startTimeTs;
         const ratio = totalDuration > 0 ? elapsed / totalDuration : 1;
 
         let currentPos;
-        let drawnPath;
+        let routePath;
         let distanceTraveled = 0;
 
         if (
@@ -116,7 +137,7 @@ const useTripAnimation = ({
         ) {
           let targetDist = trip.dist * ratio;
           distanceTraveled = targetDist;
-          drawnPath = [routeCoords[0]];
+          routePath = [routeCoords[0]];
 
           let i = 0;
           while (
@@ -124,7 +145,7 @@ const useTripAnimation = ({
             targetDist > trip.segmentDistances[i]
           ) {
             targetDist -= trip.segmentDistances[i];
-            drawnPath.push(routeCoords[i + 1]);
+            routePath.push(routeCoords[i + 1]);
             i++;
           }
 
@@ -139,10 +160,10 @@ const useTripAnimation = ({
               p1[0] + (p2[0] - p1[0]) * segRatio,
               p1[1] + (p2[1] - p1[1]) * segRatio,
             ];
-            drawnPath.push(currentPos);
+            routePath.push(currentPos);
           } else {
             currentPos = routeCoords[routeCoords.length - 1];
-            drawnPath.push(currentPos);
+            routePath.push(currentPos);
           }
         } else {
           currentPos = [
@@ -150,13 +171,14 @@ const useTripAnimation = ({
             trip.start[1] + (trip.end[1] - trip.start[1]) * ratio,
           ];
           distanceTraveled = mapRef.current.distance(trip.start, currentPos);
-          drawnPath = [trip.start, currentPos];
+          routePath = [trip.start, currentPos];
         }
 
-        totalDist += distanceTraveled;
+        if (isIncoming) distIncoming += distanceTraveled;
+        else distOutgoing += distanceTraveled;
 
         let layers = tripLayersRef.current[index];
-        const markerIconHtml = `<div style="background-color: ${MARKER_COLOR}; width: 100%; height: 100%; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${MARKER_COLOR};"></div>`;
+        const markerIconHtml = `<div style="background-color: ${markerColor}; width: 100%; height: 100%; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${markerColor};"></div>`;
         const renderBikeIcon = () => {
           return L.divIcon({
             className: 'custom-bike-icon',
@@ -171,8 +193,8 @@ const useTripAnimation = ({
             marker: L.marker(currentPos, { icon: renderBikeIcon() }).addTo(
               mapRef.current
             ),
-            polyline: L.polyline(drawnPath, {
-              color: PATH_COLOR,
+            polyline: L.polyline(routePath, {
+              color: pathColor,
               weight: 3,
               opacity: 0.5,
               pane: 'routesPane',
@@ -191,7 +213,7 @@ const useTripAnimation = ({
           } else {
             layers.marker.setLatLng(currentPos);
           }
-          layers.polyline.setLatLngs(drawnPath);
+          layers.polyline.setLatLngs(routePath);
           layers.polyline.setStyle({ opacity: 0.8, weight: 3 });
         }
       } else {
@@ -204,17 +226,35 @@ const useTripAnimation = ({
       }
     });
 
-    const message = `${activeTripsCount} active trips`;
     const now = Date.now();
     if (now - lastStateUpdateRef.current >= 150) {
-      setActiveTrip((prev) => (prev?.message === message ? prev : { message }));
-      setCompletedDistance((prev) => {
-        const safeDist = totalDist || 0;
-        return prev === safeDist ? prev : safeDist;
+      setActiveTrip((prev) => {
+        if (
+          prev?.outgoing === activeOutgoing &&
+          prev?.incoming === activeIncoming
+        ) {
+          return prev;
+        }
+        return { outgoing: activeOutgoing, incoming: activeIncoming };
       });
-      setCompletedTrips((prev) =>
-        prev === completedTripsCount ? prev : completedTripsCount
-      );
+      setCompletedDistance((prev) => {
+        if (
+          prev?.outgoing === distOutgoing &&
+          prev?.incoming === distIncoming
+        ) {
+          return prev;
+        }
+        return { outgoing: distOutgoing, incoming: distIncoming };
+      });
+      setCompletedTrips((prev) => {
+        if (
+          prev?.outgoing === completedOutgoing &&
+          prev?.incoming === completedIncoming
+        ) {
+          return prev;
+        }
+        return { outgoing: completedOutgoing, incoming: completedIncoming };
+      });
       lastStateUpdateRef.current = now;
     }
   }, [

@@ -26,17 +26,21 @@ const InfoDialog = () => {
           }}
         >
           This interactive visualization explores daily Citi Bike trips across
-          New York City. Select a station on the map to see its outgoing trips
-          animated over time, along with station statistics and trip history.
-          The data shown corresponds to the current date and time, but from the
-          year 2021.
+          New York City. Select a station on the map to see its incoming and
+          outgoing trips animated over time, along with station statistics and
+          trip history. The data shown corresponds to the current date and time,
+          but from the year 2021.
         </p>
         <p>
           <strong>Created by:</strong> Jordan Smith
         </p>
         <p>
           <strong>Data source:</strong>{' '}
-          <a href="https://citibikenyc.com/system-data" target="_blank">
+          <a
+            href="https://citibikenyc.com/system-data"
+            target="_blank"
+            rel="noreferrer"
+          >
             Citi Bike System Data
           </a>
         </p>

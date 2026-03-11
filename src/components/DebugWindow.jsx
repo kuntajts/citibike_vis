@@ -51,6 +51,7 @@ const DebugWindow = ({
           key,
           start: t.startStationId,
           end: t.endStationId,
+          type: t.type,
         });
       }
     });
@@ -202,12 +203,20 @@ const DebugWindow = ({
               let statusLabel = 'Unfetched';
               let statusColor = '#6b7280'; // gray-500
 
-              if (routesData && routesData[route.key]) {
-                statusLabel = 'Completed';
-                statusColor = '#10b981'; // emerald-500
+              const parts = route.key.split('-');
+              const reverseKey = `${parts[1]}-${parts[0]}`;
+
+              if (
+                routesData &&
+                (routesData[route.key] || routesData[reverseKey])
+              ) {
+                statusLabel = routesData[route.key]
+                  ? 'Completed'
+                  : 'Completed (Reverse)';
+                statusColor = '#00FF00'; // emerald-500
               } else {
                 const queuedItem = queueDetails.find(
-                  (q) => q.key === route.key
+                  (q) => q.key === route.key || q.key === reverseKey
                 );
                 if (queuedItem) {
                   if (queuedItem.priority === 'high') {
@@ -232,7 +241,10 @@ const DebugWindow = ({
                 >
                   <span
                     style={{
-                      color: '#d1d5db',
+                      color:
+                        route.type === 'incoming'
+                          ? 'var(--secondary-color)'
+                          : 'var(--primary-color)',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
                       whiteSpace: 'nowrap',

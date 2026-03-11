@@ -47,17 +47,31 @@ const useStationMarkers = ({
         };
       }
 
-      // Add destination stations from current trips
+      // Add destination/origin stations from current trips
       trips.forEach((trip) => {
-        const endId = trip.endStationId
-          ? String(trip.endStationId)
-          : `dest-${trip.endStation}`;
-        if (!stationsToRender[endId] && endId !== String(selectedStationId)) {
-          stationsToRender[endId] = {
-            lat: trip.end[0],
-            lng: trip.end[1],
-            name: trip.endStation,
-            isDestination: true,
+        const isIncoming = trip.type === 'incoming';
+        const tripStationId = isIncoming
+          ? trip.startStationId
+          : trip.endStationId;
+        const tripStationName = isIncoming
+          ? trip.startStation
+          : trip.endStation;
+        const tripStationCoords = isIncoming ? trip.start : trip.end;
+
+        const stringId = tripStationId
+          ? String(tripStationId)
+          : `station-${tripStationName}`;
+
+        if (
+          !stationsToRender[stringId] &&
+          stringId !== String(selectedStationId)
+        ) {
+          stationsToRender[stringId] = {
+            lat: tripStationCoords[0],
+            lng: tripStationCoords[1],
+            name: tripStationName,
+            isDestination: !isIncoming,
+            isOrigin: isIncoming,
           };
         }
       });
@@ -104,7 +118,7 @@ const useStationMarkers = ({
       }
 
       // Allow clicking on any marker that is a valid origin in dailyData
-      const originalId = stationId.startsWith('dest-') ? null : stationId;
+      const originalId = stationId.startsWith('station-') ? null : stationId;
       if (originalId && dailyData[originalId]) {
         hitbox.on('click', () => {
           setSelectedStationId(String(originalId));

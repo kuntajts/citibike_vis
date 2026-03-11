@@ -8,8 +8,14 @@ const useAnimation = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(200);
 
   const [activeTrip, setActiveTrip] = useState(null);
-  const [completedDistance, setCompletedDistance] = useState(0);
-  const [completedTrips, setCompletedTrips] = useState(0);
+  const [completedDistance, setCompletedDistance] = useState({
+    outgoing: 0,
+    incoming: 0,
+  });
+  const [completedTrips, setCompletedTrips] = useState({
+    outgoing: 0,
+    incoming: 0,
+  });
 
   const requestRef = useRef();
   const previousTimeRef = useRef();
@@ -73,8 +79,8 @@ const useAnimation = () => {
     setCurrentTime(start);
     setStartTime(start);
     setEndTime(end);
-    setCompletedDistance(0);
-    setCompletedTrips(0);
+    setCompletedDistance({ outgoing: 0, incoming: 0 });
+    setCompletedTrips({ outgoing: 0, incoming: 0 });
     setActiveTrip(null);
   }, []);
 

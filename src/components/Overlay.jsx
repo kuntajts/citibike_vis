@@ -55,7 +55,7 @@ const Overlay = ({
             className={`collapsible-content stats-section ${isMobileExpanded ? 'expanded' : ''}`}
           >
             <Stats
-              tripsCount={completedTrips}
+              completedTrips={completedTrips}
               activeTrip={activeTrip}
               completedDistance={completedDistance}
             />

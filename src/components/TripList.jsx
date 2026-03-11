@@ -8,9 +8,13 @@ const TripItem = ({ id, trip, isActive, isCompleted, hasRoute, onClick }) => {
   return (
     <div
       id={id}
-      className={`trip-item ${statusClass}`}
+      className={`trip-item ${trip.type} ${statusClass}`}
       onClick={onClick}
-      title={`${trip.startStation} -> ${trip.endStation}`}
+      title={
+        trip.type === 'incoming'
+          ? `Incoming from: ${trip.startStation}`
+          : `Outgoing to: ${trip.endStation}`
+      }
     >
       <div className="trip-time">
         {new Date(trip.startTimeTs).toLocaleTimeString([], {
@@ -23,7 +27,9 @@ const TripItem = ({ id, trip, isActive, isCompleted, hasRoute, onClick }) => {
       <div className="trip-details">
         <div className="trip-route">
           <span className="station end">
-            {trip.endStation}{' '}
+            {trip.type === 'incoming'
+              ? `From: ${trip.startStation}`
+              : `To: ${trip.endStation}`}{' '}
             {hasRoute && (
               <span className="route-indicator" title="Route loaded">
                 🚲
@@ -98,7 +104,7 @@ const TripList = ({
 
   return (
     <div className="trip-list-container" ref={listRef}>
-      <h3>Departing Trips</h3>
+      <h3>Station Trips</h3>
       <div className="trip-list">
         {trips.map((trip, index) => {
           const isActive =
