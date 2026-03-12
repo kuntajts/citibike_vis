@@ -84,6 +84,29 @@ const useAnimation = () => {
     setActiveTrip(null);
   }, []);
 
+  const wasPlayingRef = useRef(false);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        wasPlayingRef.current = isPlaying;
+        if (isPlaying) {
+          setIsPlaying(false);
+        }
+      } else if (document.visibilityState === 'visible') {
+        if (wasPlayingRef.current) {
+          setIsPlaying(true);
+          wasPlayingRef.current = false;
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isPlaying]);
+
   return {
     currentTime,
     startTime,

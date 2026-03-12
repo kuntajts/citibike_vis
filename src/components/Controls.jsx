@@ -47,7 +47,7 @@ const Controls = ({
         <input
           type="range"
           min="1"
-          max="10"
+          max="5"
           value={playbackSpeed / 200}
           onChange={(e) => onSpeedChange(parseInt(e.target.value) * 200)}
         />
