@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 
-const TILE_LAYER_URL =
-  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY;
+const TILE_LAYER_URL = CARTO_API_KEY
+  ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`
+  : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const TILE_ATTRIBUTION = '&copy; OpenStreetMap contributors &copy; CARTO';
 
 const useMapInitialization = (mapContainerRef) => {

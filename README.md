@@ -47,7 +47,20 @@ An interactive, React-based visualization tool for exploring and animating Citi 
    npm install
    ```
 
-2. **Start the Development Server**
+2. **Configure Environment Variables (CARTO API Key)**
+   
+   CARTO basemaps require an API key (free at [carto.com/basemaps/apikey](https://carto.com/basemaps/apikey/)).
+   
+   Copy the example environment file and add your key:
+   ```bash
+   cp .env.example .env
+   ```
+   Then set `VITE_CARTO_API_KEY` in `.env`:
+   ```env
+   VITE_CARTO_API_KEY=your_carto_api_key_here
+   ```
+
+3. **Start the Development Server**
    ```bash
    npm run dev
    ```
